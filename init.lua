@@ -154,6 +154,7 @@ vim.opt.cursorline = true
 -- Minimal number of screen lines to keep above and below the cursor.
 vim.opt.scrolloff = 10
 
+vim.opt.shiftwidth = 2
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
 
@@ -544,18 +545,18 @@ require('lazy').setup({
           --    See `:help CursorHold` for information about when this is executed
           --
           -- When you move your cursor, the highlights will be cleared (the second autocommand).
-          local client = vim.lsp.get_client_by_id(event.data.client_id)
-          if client and client.server_capabilities.documentHighlightProvider then
-            vim.api.nvim_create_autocmd({ 'CursorHold', 'CursorHoldI' }, {
-              buffer = event.buf,
-              callback = vim.lsp.buf.document_highlight,
-            })
-
-            vim.api.nvim_create_autocmd({ 'CursorMoved', 'CursorMovedI' }, {
-              buffer = event.buf,
-              callback = vim.lsp.buf.clear_references,
-            })
-          end
+          -- local client = vim.lsp.get_client_by_id(event.data.client_id)
+          -- if client and client.server_capabilities.documentHighlightProvider then
+          --   vim.api.nvim_create_autocmd({ 'CursorHold', 'CursorHoldI' }, {
+          --     buffer = event.buf,
+          --     callback = vim.lsp.buf.document_highlight,
+          --   })
+          --
+          --   vim.api.nvim_create_autocmd({ 'CursorMoved', 'CursorMovedI' }, {
+          --     buffer = event.buf,
+          --     callback = vim.lsp.buf.clear_references,
+          --   })
+          -- end
         end,
       })
 
@@ -578,7 +579,18 @@ require('lazy').setup({
       local servers = {
         -- clangd = {},
         -- gopls = {},
-        pyright = {},
+        pyright = {
+          settings = {
+            pyright = { autoImportCompletion = true },
+            python = {
+              analysis = {
+                autoSearchPaths = true,
+                diagnosticMode = 'workspace',
+                useLibraryCodeForTypes = true,
+              },
+            },
+          },
+        },
         -- rust_analyzer = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
