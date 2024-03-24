@@ -102,7 +102,7 @@ vim.g.have_nerd_font = false
 vim.opt.number = true
 -- You can also add relative line numbers, to help with jumping.
 --  Experiment for yourself to see if you like it!
--- vim.opt.relativenumber = true
+vim.opt.relativenumber = true
 
 -- Enable mouse mode, can be useful for resizing splits for example!
 vim.opt.mouse = 'a'
@@ -227,6 +227,9 @@ vim.opt.rtp:prepend(lazypath)
 require('lazy').setup({
   -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
   'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
+  'tpope/vim-fugitive',
+  'christoomey/vim-tmux-navigator',
+  'm4xshen/autoclose.nvim',
 
   -- NOTE: Plugins can also be added by using a table,
   -- with the first argument being the link and the following
@@ -255,6 +258,30 @@ require('lazy').setup({
         topdelete = { text = '‾' },
         changedelete = { text = '~' },
       },
+      on_attach = function(bufnr)
+        vim.keymap.set('n', '<leader>hp', require('gitsigns').preview_hunk, { buffer = bufnr, desc = 'Preview git hunk' })
+
+        -- don't override the built-in and fugitive keymaps
+        local gs = package.loaded.gitsigns
+        vim.keymap.set({ 'n', 'v' }, ']c', function()
+          if vim.wo.diff then
+            return ']c'
+          end
+          vim.schedule(function()
+            gs.next_hunk()
+          end)
+          return '<Ignore>'
+        end, { expr = true, buffer = bufnr, desc = 'Jump to next hunk' })
+        vim.keymap.set({ 'n', 'v' }, '[c', function()
+          if vim.wo.diff then
+            return '[c'
+          end
+          vim.schedule(function()
+            gs.prev_hunk()
+          end)
+          return '<Ignore>'
+        end, { expr = true, buffer = bufnr, desc = 'Jump to previous hunk' })
+      end,
     },
   },
 
@@ -278,11 +305,16 @@ require('lazy').setup({
     event = 'VimEnter', -- Sets the loading event to 'VimEnter'
     config = function() -- This is the function that runs, AFTER loading
       require('which-key').setup()
+      vim.keymap.set('n', '<leader>pe', require('copilot.command').enable, { desc = '[E]nable Copilot' })
+      vim.keymap.set('n', '<leader>pd', require('copilot.command').disable, { desc = '[D]isable Copilot' })
 
       -- Document existing key chains
       require('which-key').register {
         ['<leader>c'] = { name = '[C]ode', _ = 'which_key_ignore' },
         ['<leader>d'] = { name = '[D]ocument', _ = 'which_key_ignore' },
+        ['<leader>p'] = { name = '[P]ilot', _ = 'which_key_ignore' },
+        ['<leader>f'] = { name = '[F]ile', _ = 'which_key_ignore' },
+        ['<leader>l'] = { name = '[L]SP', _ = 'which_key_ignore' },
         ['<leader>r'] = { name = '[R]ename', _ = 'which_key_ignore' },
         ['<leader>s'] = { name = '[S]earch', _ = 'which_key_ignore' },
         ['<leader>w'] = { name = '[W]orkspace', _ = 'which_key_ignore' },
@@ -377,6 +409,10 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
       vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
 
+      vim.keymap.set('n', '<leader>fe', '<Cmd>NvimTreeToggle<CR>', { desc = '[F]ile [E]xplorer' })
+      vim.keymap.set('n', '<leader>ff', '<Cmd>NvimTreeFindFile<CR>', { desc = '[F]ind [F]ile' })
+      vim.keymap.set('n', '<leader>fc', '<Cmd>NvimTreeFocus<CR>', { desc = '[F]ile [F]ocus' })
+      vim.keymap.set('n', '<leader>lr', '<Cmd>LspRestart<CR>', { desc = '[L]sp [R]estart' })
       -- Slightly advanced example of overriding default behavior and theme
       vim.keymap.set('n', '<leader>/', function()
         -- You can pass additional configuration to Telescope to change the theme, layout, etc.
@@ -721,6 +757,8 @@ require('lazy').setup({
           --    https://github.com/L3MON4D3/LuaSnip?tab=readme-ov-file#keymaps
         },
         sources = {
+          -- Copilot Source
+          { name = 'copilot', group_index = 2 },
           { name = 'nvim_lsp' },
           { name = 'luasnip' },
           { name = 'path' },
@@ -791,7 +829,7 @@ require('lazy').setup({
     'nvim-treesitter/nvim-treesitter',
     build = ':TSUpdate',
     opts = {
-      ensure_installed = { 'bash', 'c', 'html', 'lua', 'markdown', 'vim', 'vimdoc' },
+      ensure_installed = { 'go', 'css', 'lua', 'python', 'rust', 'tsx', 'javascript', 'typescript', 'vimdoc', 'vim', 'bash' },
       -- Autoinstall languages that are not installed
       auto_install = true,
       highlight = {
@@ -801,6 +839,24 @@ require('lazy').setup({
         --  the list of additional_vim_regex_highlighting and disabled languages for indent.
         additional_vim_regex_highlighting = { 'ruby' },
       },
+      autotag = {
+        enable = true,
+        enable_rename = true,
+        enable_close = true,
+        filetypes = {
+          'html',
+          'xml',
+          'tsx',
+          'ts',
+          'javascript',
+          'javascriptreact',
+          'typescript',
+          'typescriptreact',
+          'handlebars',
+          'markdown',
+        },
+      },
+
       indent = { enable = true, disable = { 'ruby' } },
     },
     config = function(_, opts)
@@ -816,6 +872,129 @@ require('lazy').setup({
       --    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
       --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
     end,
+  },
+
+  {
+    'kristijanhusak/vim-dadbod-ui',
+    lazy = true,
+    dependencies = {
+      { 'tpope/vim-dadbod', lazy = true },
+      { 'kristijanhusak/vim-dadbod-completion', ft = { 'sql', 'mysql', 'plsql' }, lazy = true },
+    },
+    cmd = {
+      'DBUI',
+      'DBUIToggle',
+      'DBUIAddConnection',
+      'DBUIFindBuffer',
+    },
+    init = function()
+      -- Your DBUI configuration
+      vim.g.db_ui_use_nerd_fonts = 1
+    end,
+  },
+
+  {
+    'nvim-tree/nvim-tree.lua',
+    version = '*',
+    lazy = false,
+    dependencies = {
+      'nvim-tree/nvim-web-devicons',
+    },
+    config = function()
+      require('nvim-tree').setup {
+        view = {
+          relativenumber = true,
+        },
+      }
+    end,
+  },
+  { 'kevinhwang91/nvim-bqf' },
+
+  {
+    'zbirenbaum/copilot.lua',
+    cmd = 'Copilot',
+    event = 'InsertEnter',
+    config = function()
+      require('copilot').setup {
+        suggestion = { enabled = false },
+        panel = { enabled = false },
+      }
+    end,
+  },
+  {
+    'zbirenbaum/copilot-cmp',
+    config = function()
+      require('copilot_cmp').setup()
+    end,
+  },
+  {
+    'windwp/nvim-ts-autotag',
+    dependencies = 'nvim-treesitter/nvim-treesitter',
+    config = function()
+      require('nvim-ts-autotag').setup {
+        filetypes = { 'handlebars', 'html', 'javascript', 'javascriptreact', 'typescript', 'typescriptreact', 'markdown' },
+      }
+    end,
+    lazy = true,
+    event = 'VeryLazy',
+  },
+  { 'AndreM222/copilot-lualine' },
+  {
+    -- Set lualine as statusline
+    'nvim-lualine/lualine.nvim',
+    -- See `:help lualine.txt`
+    opts = {
+      options = {
+        icons_enabled = true,
+        theme = 'onedark',
+        component_separators = '|',
+        section_separators = '',
+      },
+      sections = {
+        lualine_a = { 'mode' },
+        lualine_b = {
+          'branch',
+          'diff',
+          {
+            'diagnostics',
+            sources = { 'nvim_diagnostic' },
+            symbols = { error = ' ', warn = ' ', info = ' ', hint = ' ' },
+          },
+        },
+        lualine_c = { 'filename' },
+        lualine_x = {
+          {
+            'copilot',
+            -- Default values
+            symbols = {
+              status = {
+                icons = {
+                  enabled = ' ',
+                  sleep = ' ',
+                  disabled = ' ',
+                  warning = ' ',
+                  unknown = ' ',
+                },
+                hl = {
+                  enabled = '#50FA7B',
+                  sleep = '#AEB7D0',
+                  disabled = '#6272A4',
+                  warning = '#FFB86C',
+                  unknown = '#FF5555',
+                },
+              },
+            },
+            show_colors = false,
+            show_loading = true,
+          },
+          'encoding',
+          'fileformat',
+          'filetype',
+        }, -- I added copilot here
+        lualine_y = { 'progress' },
+        lualine_z = { 'location' },
+      },
+    },
   },
 
   -- The following two comments only work if you have downloaded the kickstart repo, not just copy pasted the
