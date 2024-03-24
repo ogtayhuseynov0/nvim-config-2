@@ -307,6 +307,8 @@ require('lazy').setup({
       require('which-key').setup()
       vim.keymap.set('n', '<leader>pe', require('copilot.command').enable, { desc = '[E]nable Copilot' })
       vim.keymap.set('n', '<leader>pd', require('copilot.command').disable, { desc = '[D]isable Copilot' })
+      vim.keymap.set('n', '<leader>po', require('copilot.panel').open, { desc = '[O]pen panel' })
+      vim.keymap.set('n', '<leader>pa', require('copilot.panel').accept, { desc = '[A]ccept solution' })
 
       -- Document existing key chains
       require('which-key').register {
@@ -986,7 +988,7 @@ require('lazy').setup({
     config = function()
       require('copilot').setup {
         suggestion = { enabled = false },
-        panel = { enabled = false },
+        panel = { enabled = true },
       }
     end,
   },
@@ -1038,11 +1040,11 @@ require('lazy').setup({
             symbols = {
               status = {
                 icons = {
-                  enabled = ' ',
-                  sleep = ' ',
-                  disabled = ' ',
-                  warning = ' ',
-                  unknown = ' ',
+                  enabled = '  enabled',
+                  sleep = '  sleep',
+                  disabled = '  disabled',
+                  warning = '  warning',
+                  unknown = '  unknown',
                 },
                 hl = {
                   enabled = '#50FA7B',
