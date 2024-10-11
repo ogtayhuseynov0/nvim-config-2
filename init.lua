@@ -739,6 +739,7 @@ require('lazy').setup({
       --  into multiple repos for maintenance purposes.
       'hrsh7th/cmp-nvim-lsp',
       'hrsh7th/cmp-path',
+      'kristijanhusak/vim-dadbod-completion',
     },
     config = function()
       -- See `:help cmp`
@@ -825,6 +826,7 @@ require('lazy').setup({
         sources = {
           -- Copilot Source
           { name = 'copilot', group_index = 2 },
+          { name = 'vim-dadbod-completion' },
           { name = 'nvim_lsp' },
           { name = 'luasnip' },
           { name = 'path' },
