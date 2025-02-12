@@ -330,6 +330,7 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>po', require('CopilotChat').toggle, { desc = '[O]pen panel' })
       vim.keymap.set('n', '<leader>ps', require('CopilotChat').stop, { desc = '[S]top Answer' })
       vim.keymap.set('n', '<leader>pr', require('CopilotChat').reset, { desc = '[R]eset Panel' })
+      vim.keymap.set('n', '<leader>pm', require('CopilotChat').select_model, { desc = '[M]Model Selection' })
       vim.keymap.set('n', '<leader>pa', require('copilot.panel').accept, { desc = '[A]ccept solution' })
 
       -- Document existing key chains
