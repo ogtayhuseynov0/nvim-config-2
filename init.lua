@@ -327,7 +327,9 @@ require('lazy').setup({
       require('which-key').setup()
       vim.keymap.set('n', '<leader>pe', require('copilot.command').enable, { desc = '[E]nable Copilot' })
       vim.keymap.set('n', '<leader>pd', require('copilot.command').disable, { desc = '[D]isable Copilot' })
-      vim.keymap.set('n', '<leader>po', require('copilot.panel').open, { desc = '[O]pen panel' })
+      vim.keymap.set('n', '<leader>po', require('CopilotChat').toggle, { desc = '[O]pen panel' })
+      vim.keymap.set('n', '<leader>ps', require('CopilotChat').stop, { desc = '[S]top Answer' })
+      vim.keymap.set('n', '<leader>pr', require('CopilotChat').reset, { desc = '[R]eset Panel' })
       vim.keymap.set('n', '<leader>pa', require('copilot.panel').accept, { desc = '[A]ccept solution' })
 
       -- Document existing key chains
@@ -1064,6 +1066,18 @@ require('lazy').setup({
     end,
     lazy = true,
     event = 'VeryLazy',
+  },
+  {
+    'CopilotC-Nvim/CopilotChat.nvim',
+    dependencies = {
+      { 'github/copilot.vim' }, -- or zbirenbaum/copilot.lua
+      { 'nvim-lua/plenary.nvim', branch = 'master' }, -- for curl, log and async functions
+    },
+    build = 'make tiktoken', -- Only on MacOS or Linux
+    opts = {
+      -- See Configuration section for options
+    },
+    -- See Commands section for default commands if you want to lazy load on them
   },
   { 'AndreM222/copilot-lualine' },
   {
