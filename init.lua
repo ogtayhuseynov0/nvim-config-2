@@ -209,6 +209,21 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   end,
 })
 
+vim.api.nvim_create_user_command('DBExportCSV', function()
+  local output_file = vim.fn.input 'Enter output file name: '
+  if output_file ~= '' then
+    -- Remove header and separator lines
+    vim.cmd '2,3d'
+    -- Replace column separators with commas
+    vim.cmd [[%s/\s*|\s*/,/g]]
+    -- Trim leading and trailing whitespace
+    vim.cmd [[%s/^\s*//g | %s/\s*$//g]]
+    -- Save the file
+    vim.cmd('write! ' .. output_file)
+    print('Results exported to ' .. output_file)
+  end
+end, {})
+
 -- [[ Install `lazy.nvim` plugin manager ]]
 --    See `:help lazy.nvim.txt` or https://github.com/folke/lazy.nvim for more info
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
