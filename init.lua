@@ -133,7 +133,7 @@ vim.opt.updatetime = 250
 
 -- Decrease mapped sequence wait time
 -- Displays which-key popup sooner
-vim.opt.timeoutlen = 300
+vim.opt.timeoutlen = 100
 
 -- Configure how new splits should be opened
 vim.opt.splitright = true
@@ -261,7 +261,7 @@ require('lazy').setup({
   --    require('Comment').setup({})
 
   -- "gc" to comment visual regions/lines
-  { 'numToStr/Comment.nvim', opts = {} },
+  -- { 'numToStr/Comment.nvim', opts = {} },
 
   -- Here is a more advanced example where we pass configuration
   -- options to `gitsigns.nvim`. This is equivalent to the following Lua:
@@ -327,22 +327,19 @@ require('lazy').setup({
       require('which-key').setup()
       vim.keymap.set('n', '<leader>pe', require('copilot.command').enable, { desc = '[E]nable Copilot' })
       vim.keymap.set('n', '<leader>pd', require('copilot.command').disable, { desc = '[D]isable Copilot' })
-      vim.keymap.set('n', '<leader>po', require('CopilotChat').toggle, { desc = '[O]pen panel' })
-      vim.keymap.set('n', '<leader>ps', require('CopilotChat').stop, { desc = '[S]top Answer' })
-      vim.keymap.set('n', '<leader>pr', require('CopilotChat').reset, { desc = '[R]eset Panel' })
-      vim.keymap.set('n', '<leader>pm', require('CopilotChat').select_model, { desc = '[M]Model Selection' })
+      -- vim.keymap.set('n', '<leader>pgd', require('copilot.api')., {desc = '[G]oto [D]efinition'})
       vim.keymap.set('n', '<leader>pa', require('copilot.panel').accept, { desc = '[A]ccept solution' })
 
       -- Document existing key chains
-      require('which-key').register {
-        ['<leader>c'] = { name = '[C]ode', _ = 'which_key_ignore' },
-        ['<leader>d'] = { name = '[D]ocument', _ = 'which_key_ignore' },
-        ['<leader>p'] = { name = '[P]ilot', _ = 'which_key_ignore' },
-        ['<leader>f'] = { name = '[F]ile', _ = 'which_key_ignore' },
-        ['<leader>l'] = { name = '[L]SP', _ = 'which_key_ignore' },
-        ['<leader>r'] = { name = '[R]ename', _ = 'which_key_ignore' },
-        ['<leader>s'] = { name = '[S]earch', _ = 'which_key_ignore' },
-        ['<leader>w'] = { name = '[W]orkspace', _ = 'which_key_ignore' },
+      require('which-key').add {
+        { '<leader>c', group = '[C]ode' },
+        { '<leader>d', group = '[D]ocument' },
+        { '<leader>f', group = '[F]ile' },
+        { '<leader>l', group = '[L]SP' },
+        { '<leader>p', group = '[P]ilot' },
+        { '<leader>r', group = '[R]ename' },
+        { '<leader>s', group = '[S]earch' },
+        { '<leader>w', group = '[W]orkspace' },
       }
     end,
   },
@@ -642,8 +639,8 @@ require('lazy').setup({
         -- Some languages (like typescript) have entire language plugins that can be useful:
         --    https://github.com/pmizio/typescript-tools.nvim
         --
-        -- But for many setups, the LSP (`tsserver`) will work just fine
-        tsserver = {},
+        -- But for many setups, the LSP (`ts_ls`) will work just fine
+        ts_ls = {},
         tailwindcss = {},
         eslint = {},
         prettierd = {},
@@ -682,12 +679,13 @@ require('lazy').setup({
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
       require('mason-lspconfig').setup {
+        ensure_installed = { 'ts_ls' },
         handlers = {
           function(server_name)
             local server = servers[server_name] or {}
             -- This handles overriding only values explicitly passed
             -- by the server configuration above. Useful when disabling
-            -- certain features of an LSP (for example, turning off formatting for tsserver)
+            -- certain features of an LSP (for example, turning off formatting for ts_ls)
             server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
             require('lspconfig')[server_name].setup(server)
           end,
@@ -844,7 +842,7 @@ require('lazy').setup({
         sources = {
           -- Copilot Source
           { name = 'copilot', group_index = 2 },
-          { name = 'vim-dadbod-completion' },
+          -- { name = 'vim-dadbod-completion' },
           { name = 'nvim_lsp' },
           { name = 'luasnip' },
           { name = 'path' },
@@ -883,14 +881,24 @@ require('lazy').setup({
       --  - va)  - [V]isually select [A]round [)]paren
       --  - yinq - [Y]ank [I]nside [N]ext [']quote
       --  - ci'  - [C]hange [I]nside [']quote
-      require('mini.ai').setup { n_lines = 500 }
+      require('mini.ai').setup {
+        n_lines = 500,
+        mappings = {
+          around = 'a',
+          inside = 'i',
+          around_next = 'an',
+          inside_next = 'in',
+          around_last = 'al',
+          inside_last = 'il',
+        },
+      }
 
       -- Add/delete/replace surroundings (brackets, quotes, etc.)
       --
       -- - saiw) - [S]urround [A]dd [I]nner [W]ord [)]Paren
       -- - sd'   - [S]urround [D]elete [']quotes
       -- - sr)'  - [S]urround [R]eplace [)] [']
-      require('mini.surround').setup()
+      -- require('mini.surround').setup()
 
       -- Simple and easy statusline.
       --  You could remove this setup call if you don't like it,
@@ -923,25 +931,25 @@ require('lazy').setup({
         -- Some languages depend on vim's regex highlighting system (such as Ruby) for indent rules.
         --  If you are experiencing weird indenting issues, add the language to
         --  the list of additional_vim_regex_highlighting and disabled languages for indent.
-        additional_vim_regex_highlighting = { 'ruby' },
+        -- additional_vim_regex_highlighting = { 'ruby' },
       },
-      autotag = {
-        enable = true,
-        enable_rename = true,
-        enable_close = true,
-        filetypes = {
-          'html',
-          'xml',
-          'tsx',
-          'ts',
-          'javascript',
-          'javascriptreact',
-          'typescript',
-          'typescriptreact',
-          'handlebars',
-          'markdown',
-        },
-      },
+      -- autotag = {
+      --   enable = true,
+      --   enable_rename = true,
+      --   enable_close = true,
+      --   filetypes = {
+      --     'html',
+      --     'xml',
+      --     'tsx',
+      --     'ts',
+      --     'javascript',
+      --     'javascriptreact',
+      --     'typescript',
+      --     'typescriptreact',
+      --     'handlebars',
+      --     'markdown',
+      --   },
+      -- },
 
       indent = { enable = true, disable = { 'ruby' } },
       textobjects = {
@@ -1069,16 +1077,56 @@ require('lazy').setup({
     event = 'VeryLazy',
   },
   {
-    'CopilotC-Nvim/CopilotChat.nvim',
-    dependencies = {
-      { 'github/copilot.vim' }, -- or zbirenbaum/copilot.lua
-      { 'nvim-lua/plenary.nvim', branch = 'master' }, -- for curl, log and async functions
-    },
-    build = 'make tiktoken', -- Only on MacOS or Linux
+    'yetone/avante.nvim',
+    event = 'VeryLazy',
+    lazy = false,
+    version = false, -- Set this to "*" to always pull the latest release version, or set it to false to update to the latest code changes.
     opts = {
-      -- See Configuration section for options
+      -- add any opts here
+      -- for example
+      provider = 'copilot',
     },
-    -- See Commands section for default commands if you want to lazy load on them
+    -- if you want to build from source then do `make BUILD_FROM_SOURCE=true`
+    build = 'make',
+    -- build = "powershell -ExecutionPolicy Bypass -File Build.ps1 -BuildFromSource false" -- for windows
+    dependencies = {
+      'nvim-treesitter/nvim-treesitter',
+      'stevearc/dressing.nvim',
+      'nvim-lua/plenary.nvim',
+      'MunifTanjim/nui.nvim',
+      --- The below dependencies are optional,
+      'echasnovski/mini.pick', -- for file_selector provider mini.pick
+      'nvim-telescope/telescope.nvim', -- for file_selector provider telescope
+      'hrsh7th/nvim-cmp', -- autocompletion for avante commands and mentions
+      'ibhagwan/fzf-lua', -- for file_selector provider fzf
+      'nvim-tree/nvim-web-devicons', -- or echasnovski/mini.icons
+      'zbirenbaum/copilot.lua', -- for providers='copilot'
+      {
+        -- support for image pasting
+        'HakonHarnes/img-clip.nvim',
+        event = 'VeryLazy',
+        opts = {
+          -- recommended settings
+          default = {
+            embed_image_as_base64 = false,
+            prompt_for_file_name = false,
+            drag_and_drop = {
+              insert_mode = true,
+            },
+            -- required for Windows users
+            use_absolute_path = true,
+          },
+        },
+      },
+      {
+        -- Make sure to set this up properly if you have lazy=true
+        'MeanderingProgrammer/render-markdown.nvim',
+        opts = {
+          file_types = { 'markdown', 'Avante' },
+        },
+        ft = { 'markdown', 'Avante' },
+      },
+    },
   },
   { 'AndreM222/copilot-lualine' },
   {
