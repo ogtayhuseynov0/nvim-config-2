@@ -209,6 +209,13 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   end,
 })
 
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = 'sql',
+  callback = function()
+    vim.opt_local.commentstring = '-- %s'
+  end,
+})
+
 vim.api.nvim_create_user_command('DBExportCSV', function()
   local output_file = vim.fn.input 'Enter output file name: '
   if output_file ~= '' then
