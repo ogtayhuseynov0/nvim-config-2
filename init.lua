@@ -609,6 +609,21 @@ require('lazy').setup({
         end,
       })
 
+      vim.api.nvim_create_autocmd('LspAttach', {
+        group = vim.api.nvim_create_augroup('lsp_attach_disable_ruff_hover', { clear = true }),
+        callback = function(args)
+          local client = vim.lsp.get_client_by_id(args.data.client_id)
+          if client == nil then
+            return
+          end
+          if client.name == 'ruff' then
+            -- Disable hover in favor of Pyright
+            client.server_capabilities.hoverProvider = false
+          end
+        end,
+        desc = 'LSP: Disable hover capability from Ruff',
+      })
+
       -- LSP servers and clients are able to communicate to each other what features they support.
       --  By default, Neovim doesn't support everything that is in the LSP specification.
       --  When you add nvim-cmp, luasnip, etc. Neovim now has *more* capabilities.
@@ -630,12 +645,13 @@ require('lazy').setup({
         -- gopls = {},
         pyright = {
           settings = {
-            pyright = { autoImportCompletion = true },
+            pyright = { autoImportCompletion = true, disableOrganizeImports = true },
             python = {
               analysis = {
-                autoSearchPaths = true,
-                diagnosticMode = 'workspace',
-                useLibraryCodeForTypes = true,
+                -- autoSearchPaths = true,
+                -- diagnosticMode = 'workspace',
+                -- useLibraryCodeForTypes = true,
+                ignore = { '*' },
               },
             },
           },
