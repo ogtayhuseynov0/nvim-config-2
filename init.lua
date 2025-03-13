@@ -648,10 +648,12 @@ require('lazy').setup({
             pyright = { autoImportCompletion = true, disableOrganizeImports = true },
             python = {
               analysis = {
-                -- autoSearchPaths = true,
-                -- diagnosticMode = 'workspace',
-                -- useLibraryCodeForTypes = true,
-                ignore = { '*' },
+                autoSearchPaths = true,
+                diagnosticMode = 'workspace',
+                -- diagnosticMode = 'openFilesOnly',
+                typeCheckingMode = 'basic',
+                useLibraryCodeForTypes = true,
+                -- ignore = { '*' },
               },
             },
           },
