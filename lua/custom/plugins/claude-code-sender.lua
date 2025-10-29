@@ -1,6 +1,3 @@
--- Claude Code Sender Plugin - Simple & Fast
--- No auto-detection - just set your pane manually
-
 local M = {}
 
 -- Configuration - Set your Claude Code pane here!
